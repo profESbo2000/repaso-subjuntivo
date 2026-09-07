@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estudio Visual y Prueba - profES</title>
+  <style>
+    :root {
+      --profes-red: #e73540;
+      --profes-dark: rgb(53, 67, 73);
+      --bg-color: #f4f6f8;
+      --card-bg: #ffffff;
+      --border: #cbd5e1;
+      --success: #10b981;
+      --error: #ef4444;
+      --radius: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: #2d3748;
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      background: var(--card-bg);
+      width: 100%;
+      max-width: 850px;
+      border-radius: var(--radius);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+      padding: 30px;
+      border: 1px solid var(--border);
+    }
+
+    .brand-header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .text-logo {
+      font-size: 2.2rem;
+      font-weight: 300;
+      color: var(--profes-dark);
+    }
+
+    .text-logo span {
+      font-weight: 700;
+      color: var(--profes-red);
+    }
+
+    h1 {
+      font-size: 1.2rem;
+      color: var(--profes-dark);
+      margin-top: 4px;
+    }
+
+    /* TARJETAS VISUALES (FLASHCARDS) */
+    .flashcard-wrapper {
+      perspective: 1000px;
+      margin: 20px 0;
+    }
+
+    .flashcard {
+      width: 100%;
+      min-height: 280px;
+      background: white;
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      padding: 25px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
+      position: relative;
+    }
+
+    .flashcard.flipped {
+      transform: rotateY(180deg);
+    }
+
+    .card-front, .card-back {
+      backface-visibility: hidden;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card-back {
+      transform: rotateY(180deg);
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 25px;
+      overflow-y: auto;
+    }
+
+    .card-tag {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--profes-red);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .card-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--profes-dark);
+      margin-bottom: 15px;
+    }
+
+    .card-illustration {
+      width: 90px;
+      height: 90px;
+      margin: 10px 0;
+    }
+
+    .card-illustration svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .card-desc {
+      font-size: 0.95rem;
+      color: #475569;
+      line-height: 1.4;
+      margin-bottom: 12px;
+    }
+
+    .example-box {
+      background: #f8fafc;
+      border-left: 4px solid var(--profes-red);
+      padding: 10px 14px;
+      border-radius: 0 8px 8px 0;
+      text-align: left;
+      width: 100%;
+      font-size: 0.9rem;
+      color: var(--profes-dark);
+    }
+
+    .example-box strong {
+      color: var(--profes-red);
+    }
+
+    .card-hint {
+      font-size: 0.8rem;
+      color: #94a3b8;
+      margin-top: 10px;
+    }
+
+    .flashcard-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 15px;
+    }
+
+    .btn-secondary {
+      background: #e2e8f0;
+      color: var(--profes-dark);
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: var(--profes-red);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-primary:hover {
+      background: #c82832;
+    }
+
+    /* ESTILOS DE LA PRUEBA */
+    .hidden {
+      display: none !important;
+    }
+
+    .progress-wrapper {
+      margin-bottom: 25px;
+    }
+
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #64748b;
+      margin-bottom: 6px;
+    }
+
+    .progress-bar-bg {
+      width: 100%;
+      height: 10px;
+      background-color: #e2e8f0;
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background-color: var(--profes-red);
+      transition: width 0.3s ease;
+    }
+
+    .quiz-card {
+      background: #ffffff;
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      padding: 25px;
+    }
+
+    .question-tag {
+      font-weight: 700;
+      color: var(--profes-red);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .question-text {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--profes-dark);
+      margin-bottom: 20px;
+      line-height: 1.4;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .option-btn {
+      background-color: #f1f5f9;
+      border: 2px solid #e2e8f0;
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--profes-dark);
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s ease;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      border-color: var(--profes-red);
+      background-color: #fef2f2;
+    }
+
+    .option-btn.correct {
+      background-color: #d1fae5 !important;
+      border-color: var(--success) !important;
+      color: #065f46 !important;
+    }
+
+    .option-btn.incorrect {
+      background-color: #fee2e2 !important;
+      border-color: var(--error) !important;
+      color: #991b1b !important;
+    }
+
+    .feedback-box {
+      margin-top: 20px;
+      padding: 16px;
+      border-radius: 8px;
+      display: none;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    .feedback-box.visible {
+      display: block;
+    }
+
+    .feedback-box.correct-bg {
+      background-color: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: #166534;
+    }
+
+    .feedback-box.incorrect-bg {
+      background-color: #fff1f2;
+      border: 1px solid #fecdd3;
+      color: #9f1239;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    .btn-next {
+      background-color: var(--profes-dark);
+      color: white;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="brand-header">
+      <div class="text-logo">prof<span>ES</span></div>
+      <h1 id="main-title">Fase 1: Tarjetas Visuales de Estudio</h1>
+    </div>
+
+    <!-- SECCIÓN 1: TARJETAS DE ESTUDIO CON ILUSTRACIONES -->
+    <div id="study-section">
+      <div class="flashcard-wrapper">
+        <div class="flashcard" id="flashcard" onclick="flipCard()">
+          <div class="card-front">
+            <div class="card-tag" id="fc-tag">Regla 1</div>
+            <div class="card-title" id="fc-title">Cargando...</div>
+            <div class="card-illustration" id="fc-svg"></div>
+            <div class="card-hint">🔄 Toca la tarjeta para ver la regla y los ejemplos</div>
+          </div>
+          <div class="card-back">
+            <div class="card-desc" id="fc-desc">Cargando...</div>
+            <div class="example-box" id="fc-example">Cargando...</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flashcard-nav">
+        <button class="btn-secondary" onclick="prevCard()">← Anterior</button>
+        <span id="fc-counter" style="font-weight:600; color:#64748b;">Tarjeta 1 de 6</span>
+        <button class="btn-secondary" onclick="nextCard()">Siguiente →</button>
+      </div>
+
+      <div style="text-align: center; margin-top: 30px;">
+        <button class="btn-primary" onclick="startQuiz()">¡Comenzar la Prueba (25 Preguntas)! 🚀</button>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 2: PRUEBA INTERACTIVA -->
+    <div id="quiz-section" class="hidden">
+      <div class="progress-wrapper">
+        <div class="progress-info">
+          <span id="progress-text">Pregunta 1 de 25</span>
+          <span id="remaining-text">Quedan 24</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="progress-fill"></div>
+        </div>
+      </div>
+
+      <div class="quiz-card" id="quiz-card">
+        <div class="question-tag" id="q-tag">Cargando...</div>
+        <div class="question-text" id="q-text">Cargando...</div>
+        
+        <div class="options-grid" id="options-container"></div>
+
+        <div class="feedback-box" id="feedback-box"></div>
+
+        <div class="controls">
+          <span id="score-tracker" style="font-size:0.9rem; font-weight:600; color:#64748b;">Puntos: 0</span>
+          <button class="btn-next" id="next-btn" onclick="nextQuestion()">Siguiente →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ILUSTRACIONES SVG PARA CADA CONCEPTO
+    const svgIcons = {
+      subjects: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="22" cy="24" r="10" stroke="#e73540" stroke-width="4"/>
+        <path d="M10 50C10 42 15 38 22 38C29 38 34 42 34 50" stroke="#e73540" stroke-width="4" stroke-linecap="round"/>
+        <circle cx="42" cy="24" r="10" stroke="#354349" stroke-width="4"/>
+        <path d="M30 50C30 42 35 38 42 38C49 38 54 42 54 50" stroke="#354349" stroke-width="4" stroke-linecap="round"/>
+      </svg>`,
+      opinion: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 16C12 11.5 15.5 8 20 8H44C48.5 8 52 11.5 52 16V36C52 40.5 48.5 44 44 44H24L12 54V16Z" stroke="#354349" stroke-width="4" stroke-linejoin="round"/>
+        <path d="M26 26H38M32 20V32" stroke="#e73540" stroke-width="4" stroke-linecap="round"/>
+      </svg>`,
+      time: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="10" y="14" width="44" height="40" rx="6" stroke="#354349" stroke-width="4"/>
+        <line x1="10" y1="24" x2="54" y2="24" stroke="#354349" stroke-width="4"/>
+        <path d="M22 8V16M42 8V16" stroke="#e73540" stroke-width="4" stroke-linecap="round"/>
+        <circle cx="32" cy="38" r="4" fill="#e73540"/>
+      </svg>`,
+      impersonal: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="32" cy="32" r="22" stroke="#354349" stroke-width="4"/>
+        <path d="M32 18V34L40 40" stroke="#e73540" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>`,
+      desire: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M32 52L12 32C6 26 10 14 20 14C26 14 30 18 32 22C34 18 38 14 44 14C54 14 58 26 52 32L32 52Z" stroke="#e73540" stroke-width="4" stroke-linejoin="round"/>
+      </svg>`,
+      mandate: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="32" cy="32" r="22" stroke="#e73540" stroke-width="4"/>
+        <line x1="16" y1="16" x2="48" y2="48" stroke="#e73540" stroke-width="4"/>
+      </svg>`
+    };
+
+    // DATOS DE LAS TARJETAS CON EJEMPLOS
+    const flashcards = [
+      {
+        tag: "Regla 1: Sujetos",
+        title: "Infinitivo vs. Subjuntivo",
+        icon: svgIcons.subjects,
+        desc: "• <strong>Mismo sujeto:</strong> Verbo directo en Infinitivo (sin 'que').<br>• <strong>Diferente sujeto:</strong> Exige conector 'que' + Subjuntivo.",
+        example: "<strong>Ejemplo:</strong><br>• 1 Sujeto: Yo quiero <em>comprar</em> una casa.<br>• 2 Sujetos: Yo quiero que tú <em>compres</em> una casa."
+      },
+      {
+        tag: "Regla 2: Opinión y Certeza",
+        title: "Creer / Pensar / Ser verdad",
+        icon: svgIcons.opinion,
+        desc: "• <strong>Oración Afirmativa (Certeza):</strong> Se usa Indicativo.<br>• <strong>Oración Negativa (Duda/Desacuerdo):</strong> Activa el Subjuntivo.",
+        example: "<strong>Ejemplo:</strong><br>• Afirmativo: Creo que <em>hace</em> buen tiempo.<br>• Negativo: No creo que <em>haga</em> buen tiempo."
+      },
+      {
+        tag: "Regla 3: Marcador 'CUANDO'",
+        title: "Rutina vs. Acción Futura",
+        desc: "• <strong>Hábito o Rutina:</strong> Se usa Presente de Indicativo.<br>• <strong>Planes o Acción Futura:</strong> Requiere Subjuntivo.",
+        example: "<strong>Ejemplo:</strong><br>• Rutina: Cuando <em>termino</em> de trabajar, voy al gym.<br>• Futuro: Llámame cuando <em>termines</em> de trabajar."
+      },
+      {
+        tag: "Regla 4: Valoración Impersonal",
+        title: "Es + Adjetivo + ...",
+        desc: "• <strong>Valoración General:</strong> Se usa Infinitivo sin persona.<br>• <strong>Sujeto Específico:</strong> 'que + persona' exige Subjuntivo.",
+        example: "<strong>Ejemplo:</strong><br>• General: Es importante <em>estudiar</em> todos los días.<br>• Específico: Es importante que tú <em>estudies</em> diario."
+      },
+      {
+        tag: "Regla 5: Deseo y Duda",
+        title: "Ojalá / Quizás / Es probable que",
+        desc: "• <strong>Ojalá:</strong> Siempre desencadena Subjuntivo.<br>• <strong>Duda / Probabilidad:</strong> Exige Subjuntivo para hipótesis.",
+        example: "<strong>Ejemplo:</strong><br>• Deseo: ¡Ojalá <em>podamos</em> ir de viaje!<br>• Duda: Es probable que ellos <em>lleguen</em> tarde."
+      },
+      {
+        tag: "Regla 6: Órdenes y Finalidad",
+        title: "¡No...! / Para vs. Para que",
+        desc: "• <strong>Imperativo Negativo:</strong> Forma siempre con Subjuntivo.<br>• <strong>Finalidad:</strong> 'Para + Infinitivo' (1 sujeto) vs 'Para que + Subjuntivo' (2 sujetos).",
+        example: "<strong>Ejemplo:</strong><br>• Prohibición: ¡No <em>hables</em> tan fuerte!<br>• Finalidad: Te explico para que <em>entiendas</em>."
+      }
+    ];
+
+    let currentFC = 0;
+
+    function updateCard() {
+      const card = document.getElementById('flashcard');
+      card.classList.remove('flipped');
+      setTimeout(() => {
+        const fc = flashcards[currentFC];
+        document.getElementById('fc-tag').innerText = fc.tag;
+        document.getElementById('fc-title').innerText = fc.title;
+        document.getElementById('fc-svg').innerHTML = fc.icon;
+        document.getElementById('fc-desc').innerHTML = fc.desc;
+        document.getElementById('fc-example').innerHTML = fc.example;
+        document.getElementById('fc-counter').innerText = `Tarjeta ${currentFC + 1} de ${flashcards.length}`;
+      }, 200);
+    }
+
+    function flipCard() {
+      document.getElementById('flashcard').classList.toggle('flipped');
+    }
+
+    function nextCard() {
+      if (currentFC < flashcards.length - 1) {
+        currentFC++;
+        updateCard();
+      }
+    }
+
+    function prevCard() {
+      if (currentFC > 0) {
+        currentFC--;
+        updateCard();
+      }
+    }
+
+    // BANCO DE PREGUNTAS (25 REACTIVOS)
+    const questions = [
+      {
+        tag: "Mismo Sujeto vs Diferente Sujeto",
+        question: "Yo quiero _____ (comprar) una casa grande en el campo.",
+        options: ["comprar (Infinitivo)", "compre (Subjuntivo)", "compro (Presente)"],
+        correct: 0,
+        explanation: "<strong>Uso del Infinitivo:</strong> Un solo sujeto (Yo). Al no haber cambio de sujeto ni 'que', usamos infinitivo."
+      },
+      {
+        tag: "2 Sujetos / 2 Verbos",
+        question: "Yo quiero que tú _____ (comprar) el pan antes de venir.",
+        options: ["comprar (Infinitivo)", "compres (Subjuntivo)", "compras (Presente)"],
+        correct: 1,
+        explanation: "<strong>Uso del Subjuntivo:</strong> Hay dos sujetos diferentes (Yo quiero + Tú compres) unidos por 'que'."
+      },
+      {
+        tag: "Opinión Afirmativa vs Negativa",
+        question: "Creo que mañana _____ (hacer) buen tiempo.",
+        options: ["hace (Presente)", "haga (Subjuntivo)", "hacer (Infinitivo)"],
+        correct: 0,
+        explanation: "<strong>Uso del Presente de Indicativo:</strong> 'Creo que...' expresa certeza o opinión afirmativa."
+      },
+      {
+        tag: "Opinión Afirmativa vs Negativa",
+        question: "No creo que mañana _____ (hacer) buen tiempo.",
+        options: ["hace (Presente)", "haga (Subjuntivo)", "hacer (Infinitivo)"],
+        correct: 1,
+        explanation: "<strong>Uso del Subjuntivo:</strong> Al negar la opinión ('NO creo que...'), se introduce duda e incertidumbre."
+      },
+      {
+        tag: "Cuando: Rutina vs Futuro",
+        question: "Normalmente, cuando yo _____ (terminar) de trabajar, voy al gimnasio.",
+        options: ["termino (Presente)", "termine (Subjuntivo)", "terminar (Infinitivo)"],
+        correct: 0,
+        explanation: "<strong>Uso del Presente de Indicativo:</strong> 'Cuando' con Indicativo describe rutinas o hábitos."
+      },
+      {
+        tag: "Cuando: Rutina vs Futuro",
+        question: "Llámame cuando tú _____ (terminar) el trabajo esta tarde.",
+        options: ["terminas (Presente)", "termines (Subjuntivo)", "terminar (Infinitivo)"],
+        correct: 1,
+        explanation: "<strong>Uso del Subjuntivo:</strong> 'Cuando' se refiere a una acción futura aún no realizada."
+      },
+      {
+        tag: "Deseo / Ojalá",
+        question: "Ojalá nosotros _____ (poder) ir de vacaciones a España este año.",
+        options: ["podemos (Presente)", "podamos (Subjuntivo)", "poder (Infinitivo)"],
+        correct: 1,
+        explanation: "<strong>Uso del Subjuntivo:</strong> La palabra 'Ojalá' requiere siempre Presente de Subjuntivo."
+      },
+      {
+        tag: "Verbos de Valoración",
+        question: "Es importante _____ (estudiar) todos los días para progresar.",
+        options: ["estudiar (Infinitivo)", "estudies (Subjuntivo)", "estudias (Presente)"],
+        correct: 0,
+        explanation: "<strong>Uso del Infinitivo:</strong> Valoración general impersonal ('Es importante + Infinitivo')."
+      },
+      {
+        tag: "Verbos de Valoración con Sujeto",
+        question: "Es importante que tú _____ (estudiar) todos los días.",
+        options: ["estudiar (Infinitivo)", "estudias (Presente)", "estudies (Subjuntivo)"],
+        correct: 2,
+        explanation: "<strong>Uso del Subjuntivo:</strong> Al introducir una persona específica ('que tú...'), rige Subjuntivo."
+      },
+      {
+        tag: "Posibilidad y Duda",
+        question: "Es probable que ellos _____ (llegar) tarde por el tráfico.",
+        options: ["llegar (Infinitivo)", "llegan (Presente)", "lleguen (Subjuntivo)"],
+        correct: 2,
+        explanation: "<strong>Uso del Subjuntivo:</strong> Expresiones de probabilidad ('Es probable que') llevan Subjuntivo."
+      },
+      {
+        tag: "Imperativo Negativo",
+        question: "Por favor, ¡no _____ (hablar) tan alto en la biblioteca!",
+        options: ["hablas (Presente)", "hables (Subjuntivo)", "hablar (Infinitivo)"],
+        correct: 1,
+        explanation: "<strong>Uso del Subjuntivo:</strong> El imperativo negativo con ¡NO! utiliza la forma de Subjuntivo."
+      },
+      {
+        tag: "Sentimientos y Emociones",
+        question: "Me alegra que vosotros _____ (estar) aquí con nosotros.",
+        options: ["estáis (Presente)", "estéis (Subjuntivo)", "estar (Infinitivo)"],
+        correct: 1,
+        explanation: "<strong>Uso del Subjuntivo:</strong> Emoción con sujeto secundario diferente (A mí me alegra / Vosotros estáis)."
+      },
+      {
+        tag: "Sentimientos con Mismo Sujeto",
+        question: "Me alegro de _____ (estar) aquí con vosotros.",
+        options: ["estar (Infinitivo)", "estoy (Presente)", "esté (Subjuntivo)"],
+        correct: 0,
+        explanation: "<strong>Uso del Infinitivo:</strong> Mismo sujeto para la emoción y la acción (Yo me alegro / Yo estoy)."
+      },
+      {
+        tag: "Petición / Consejo",
+        question: "El médico me recomienda que _____ (dormir) ocho horas diarias.",
+        options: ["duermo (Presente)", "duerma (Subjuntivo)", "dormir (Infinitivo)"],
+        correct: 1,
+        explanation: "<strong>Uso del Subjuntivo:</strong> Verbos de consejo (recomendar) con 'que' rigen Subjuntivo (Dormir → Duerma)."
+      },
+      {
+        tag: "Certeza vs Duda",
+        question: "Es verdad que Laura _____ (hablar) tres idiomas perfectamente.",
+        options: ["habla (Presente)", "hable (Subjuntivo)", "hablar (Infinitivo)"],
+        correct: 0,
+        explanation: "<strong>Uso del Presente de Indicativo:</strong> 'Es verdad que' afirma un hecho probado."
+      },
+      {
+        tag: "Negación de la Certeza",
+        question: "No es verdad que Laura _____ (hablar) tres idiomas.",
+        options: ["habla (Presente)", "hable (Subjuntivo)", "hablar (Infinitivo)"],
+        correct: 1,
+        explanation: "<strong>Uso del Subjuntivo:</strong> Negar una certeza ('No es verdad que...') introduce duda y activa el Subjuntivo."
+      },
+      {
+        tag: "Expresiones de Duda",
+        question: "Quizás ellos _____ (venir) a la fiesta de esta noche.",
+        options: ["vienen (Presente)", "vengan (Subjuntivo)", "venir (Infinitivo)"],
+        correct: 1,
+        explanation: "<strong>Uso del Subjuntivo:</strong> Adverbios de duda como 'Quizás' se construyen frecuentemente con Subjuntivo."
+      },
+      {
+        tag: "Necesidad con Mismo Sujeto",
+        question: "Necesito _____ (renovar) mi pasaporte esta semana.",
+        options: ["renovar (Infinitivo)", "renueve (Subjuntivo)", "renuevo (Presente)"],
+        correct: 0,
+        explanation: "<strong>Uso del Infinitivo:</strong> Mismo sujeto en el deseo y la acción (Yo necesito / Yo renuevo)."
+      },
+      {
+        tag: "Necesidad con Distinto Sujeto",
+        question: "Necesito que tú _____ (renovar) los billetes de autobús.",
+        options: ["renovar (Infinitivo)", "renuevas (Presente)", "renueves (Subjuntivo)"],
+        correct: 2,
+        explanation: "<strong>Uso del Subjuntivo:</strong> Cambio de sujeto (Yo necesito / Tú renuevas) mediante 'que'."
+      },
+      {
+        tag: "Hasta que + Futuro",
+        question: "No saldremos a jugar hasta que tú _____ (hacer) los deberes.",
+        options: ["haces (Presente)", "hagas (Subjuntivo)", "hacer (Infinitivo)"],
+        correct: 1,
+        explanation: "<strong>Uso del Subjuntivo:</strong> 'Hasta que' referido a un evento futuro no cumplido exige Subjuntivo."
+      },
+      {
+        tag: "Antes de + Infinitivo",
+        question: "Debes lavarte las manos antes de _____ (comer).",
+        options: ["comer (Infinitivo)", "comas (Subjuntivo)", "comes (Presente)"],
+        correct: 0,
+        explanation: "<strong>Uso del Infinitivo:</strong> La preposición 'antes de' (sin 'que') exige verbo en Infinitivo."
+      },
+      {
+        tag: "Antes de que + Subjuntivo",
+        question: "Debes terminar el informe antes de que el jefe _____ (llegar).",
+        options: ["llega (Presente)", "llegue (Subjuntivo)", "llegar (Infinitivo)"],
+        correct: 1,
+        explanation: "<strong>Uso del Subjuntivo:</strong> La conjunción 'antes de que' requiere obligatoriamente Subjuntivo."
+      },
+      {
+        tag: "Finalidad: Para + Infinitivo",
+        question: "Carlos estudia mucho para _____ (aprobar) el examen de nivel.",
+        options: ["aprobar (Infinitivo)", "apruebe (Subjuntivo)", "aprueba (Presente)"],
+        correct: 0,
+        explanation: "<strong>Uso del Infinitivo:</strong> 'Para' sin 'que' expresa finalidad con el mismo sujeto."
+      },
+      {
+        tag: "Finalidad: Para que + Subjuntivo",
+        question: "Carlos te explica la lección para que tú _____ (aprobar) el examen.",
+        options: ["aprobar (Infinitivo)", "apruebas (Presente)", "apruebes (Subjuntivo)"],
+        correct: 2,
+        explanation: "<strong>Uso del Subjuntivo:</strong> 'Para que' conecta dos sujetos distintos y rige Subjuntivo."
+      },
+      {
+        tag: "Opinión Negativa e Irregularidad",
+        question: "No pienso que esa decisión _____ (ser) la más adecuada.",
+        options: ["es (Presente)", "sea (Subjuntivo)", "ser (Infinitivo)"],
+        correct: 1,
+        explanation: "<strong>Uso del Subjuntivo:</strong> Opinión negada ('No pienso que...') + verbo irregular (Ser → sea)."
+      }
+    ];
+
+    let currentQ = 0;
+    let score = 0;
+
+    function startQuiz() {
+      document.getElementById('study-section').classList.add('hidden');
+      document.getElementById('quiz-section').classList.remove('hidden');
+      document.getElementById('main-title').innerText = "Fase 2: Prueba de Evaluación (25 Preguntas)";
+      loadQuestion();
+    }
+
+    function updateProgressBar() {
+      const total = questions.length;
+      const currentNumber = currentQ + 1;
+      const remaining = total - currentNumber;
+      const percentage = (currentNumber / total) * 100;
+
+      document.getElementById('progress-text').innerText = `Pregunta ${currentNumber} de ${total}`;
+      document.getElementById('remaining-text').innerText = remaining === 0 ? '¡Última pregunta!' : `Quedan ${remaining}`;
+      document.getElementById('progress-fill').style.width = `${percentage}%`;
+    }
+
+    function loadQuestion() {
+      updateProgressBar();
+      const q = questions[currentQ];
+      
+      document.getElementById('q-tag').innerText = q.tag;
+      document.getElementById('q-text').innerHTML = q.question;
+      
+      const container = document.getElementById('options-container');
+      container.innerHTML = '';
+
+      q.options.forEach((opt, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.innerText = opt;
+        btn.onclick = () => checkAnswer(index);
+        container.appendChild(btn);
+      });
+
+      const feedback = document.getElementById('feedback-box');
+      feedback.className = 'feedback-box';
+      feedback.style.display = 'none';
+
+      document.getElementById('next-btn').style.display = 'none';
+    }
+
+    function checkAnswer(selectedIndex) {
+      const q = questions[currentQ];
+      const buttons = document.querySelectorAll('.option-btn');
+      const feedback = document.getElementById('feedback-box');
+
+      buttons.forEach(btn => btn.disabled = true);
+
+      if (selectedIndex === q.correct) {
+        buttons[selectedIndex].classList.add('correct');
+        feedback.className = 'feedback-box visible correct-bg';
+        feedback.innerHTML = `<strong>¡Correcto! 🎉</strong><br>${q.explanation}`;
+        score++;
+      } else {
+        buttons[selectedIndex].classList.add('incorrect');
+        buttons[q.correct].classList.add('correct');
+        feedback.className = 'feedback-box visible incorrect-bg';
+        feedback.innerHTML = `<strong>Respuesta incorrecta ❌</strong><br>${q.explanation}`;
+      }
+
+      document.getElementById('score-tracker').innerText = `Puntos: ${score}`;
+      document.getElementById('next-btn').style.display = 'inline-block';
+    }
+
+    function nextQuestion() {
+      currentQ++;
+      if (currentQ < questions.length) {
+        loadQuestion();
+      } else {
+        showResults();
+      }
+    }
+
+    function showResults() {
+      document.getElementById('progress-text').innerText = `¡Completado!`;
+      document.getElementById('remaining-text').innerText = `0 restantes`;
+      document.getElementById('progress-fill').style.width = `100%`;
+
+      const card = document.getElementById('quiz-card');
+      card.innerHTML = `
+        <div style="text-align:center; padding: 20px 10px;">
+          <h2 style="color:var(--profes-dark); font-size:1.8rem; margin-bottom:10px;">¡Prueba Finalizada! 👏</h2>
+          <p style="font-size:1.2rem; margin-bottom:20px;">Puntuación obtenida: <strong>${score} / ${questions.length}</strong></p>
+          <button onclick="location.reload()" class="btn-primary">Volver a Repasar</button>
+        </div>
+      `;
+    }
+
+    // Inicializar visualización
+    updateCard();
+  </script>
+
+</body>
+</html>
